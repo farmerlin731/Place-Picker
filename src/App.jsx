@@ -7,11 +7,16 @@ import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
 import logoImg from "./assets/logo.png";
 import { sortPlacesByDistance } from "./loc.js";
 
+const storedIDs = JSON.parse(localStorage.getItem("pickedPlaces")) || [];
+const storePlaces = storedIDs.map((id) =>
+  AVAILABLE_PLACES.find((place) => place.id == id)
+);
+
 function App() {
   const modal = useRef();
   const selectedPlace = useRef();
   const [availablePlaces, setAvailablePlaces] = useState([]);
-  const [pickedPlaces, setPickedPlaces] = useState([]);
+  const [pickedPlaces, setPickedPlaces] = useState(storePlaces);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) => {
@@ -22,6 +27,14 @@ function App() {
       );
 
       setAvailablePlaces(sortedPlaces);
+
+      //Oh,, the following u don't need to put in 'useEffect'.
+      //Cuz u can get response instantly.
+      // const storedIDs = JSON.parse(localStorage.getItem("pickedPlaces")) || [];
+      // console.log(storedIDs);
+      // setPickedPlaces(
+      //   storedIDs.map((id) => AVAILABLE_PLACES.find((place) => place.id == id))
+      // );
     });
   }, []);
 
@@ -42,12 +55,26 @@ function App() {
       const place = AVAILABLE_PLACES.find((place) => place.id === id);
       return [place, ...prevPickedPlaces];
     });
+
+    const storedIDs = JSON.parse(localStorage.getItem("pickedPlaces")) || [];
+    console.log(storedIDs);
+
+    if (storedIDs.indexOf(id) === -1) {
+      localStorage.setItem("pickedPlaces", JSON.stringify([id, ...storedIDs]));
+    }
   }
 
   function handleRemovePlace() {
+    let filterArr = [];
     setPickedPlaces((prevPickedPlaces) =>
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
+    //Oh,, setState is async function, u can't do that.
+    //localStorage.setItem("pickedPlaces", JSON.stringify(filterArr));
+
+    const storedIDs = JSON.parse(localStorage.getItem("pickedPlaces")) || [];
+    const tmpIDs = storedIDs.filter((id) => id != selectedPlace.current);
+    localStorage.setItem("pickedPlaces", JSON.stringify(tmpIDs));
     modal.current.close();
   }
 
