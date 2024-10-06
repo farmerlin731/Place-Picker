@@ -74,6 +74,7 @@ function App() {
     setPickedPlaces((prevPickedPlaces) =>
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
+
     //Oh,, setState is async function, u can't do that.
     //localStorage.setItem("pickedPlaces", JSON.stringify(filterArr));
 
